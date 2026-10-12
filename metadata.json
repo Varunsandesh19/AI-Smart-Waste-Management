@@ -1,0 +1,6 @@
+{
+  "name": "EcoReward - AI Smart Waste Management & Segregation",
+  "description": "AI-Powered Smart Waste Management & Automated Segregation System featuring real-time computer vision detection, pneumatic/servo sorting simulation, IoT bin telemetry, and environmental analytics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
