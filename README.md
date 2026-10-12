@@ -77,7 +77,7 @@
 
 ### Prerequisites
 
-- Node.js 20.x or higher
+- Node.js 22.x through 25.x (Render uses Node.js 22.16.0)
 - npm 10.x or higher
 
 ### Installation
@@ -129,6 +129,17 @@ npm run build
 ```
 
 The production output will be generated inside the `dist/` directory.
+
+### Free Hosting & Automatic Deployment
+
+The application uses an Express server for `/api/classify` and `/api/health`, so deploy it as a Node.js web service rather than a static site such as GitHub Pages. The root `render.yaml` configures a free Render web service on the `main` branch:
+
+- Render builds with `npm ci --include=dev && npm run build` and starts the production Express server with `npm start`.
+- Deploys are configured to start only after GitHub CI checks pass.
+- The `/api/health` endpoint is used for service health checks.
+- The Gemini API key is optional. Without `GEMINI_API_KEY`, the built-in simulation classification fallback remains available; no paid API is required.
+
+To activate deployment, create a Render account, connect GitHub, authorize access to this repository, and create a Blueprint from this repository's `render.yaml`. Select the Free service plan and confirm the `main` branch and **After CI Checks Pass** automatic deploy behavior. Render will provide a public `onrender.com` URL after the first successful deployment. Free web services can spin down when idle, so their first request after inactivity may take about a minute.
 
 ---
 
