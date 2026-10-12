@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsc --noEmit && echo 'EcoReward Test Suite: All type and logic checks passed.'"
+    "test": "tsc --noEmit && tsx --test src/utils/sorting.test.ts && echo 'EcoReward Test Suite: All type and logic checks passed.'"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -21,6 +21,7 @@ import {
 import confetti from 'canvas-confetti';
 import { useWaste } from '../context/WasteContext';
 import { WasteCategory, WasteItem } from '../types/waste';
+import { getSortingTargetX, SORTING_CATEGORIES, SORTING_TARGETS } from '../utils/sorting';
 
 const DEFAULT_SIM_ITEMS: WasteItem[] = [
   {
@@ -225,8 +226,8 @@ export const SimulationPage: React.FC = () => {
       case 3: return 320; // Drainage grate
       case 4: return 440; // Camera inspection
       case 5: return 560; // Main conveyor belt
-      case 6: return 680; // Flap diversion
-      case 7: return 720; // Dropped in bin
+      case 6: return getSortingTargetX(selectedItem.category, 6); // Selected sorting flap
+      case 7: return getSortingTargetX(selectedItem.category, 7); // Matching collection bin
       default: return 50;
     }
   };
@@ -236,10 +237,7 @@ export const SimulationPage: React.FC = () => {
     return 130; // On belt track
   };
 
-  const targetCategoryColor = 
-    selectedItem.category === 'Wet Waste' ? '#10B981' :
-    selectedItem.category === 'Plastic' ? '#06B6D4' :
-    selectedItem.category === 'Paper' ? '#EAB308' : '#EF4444';
+  const targetCategoryColor = SORTING_TARGETS[selectedItem.category].color;
 
   return (
     <div className="min-h-screen bg-[#081421] text-slate-100 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -471,37 +469,23 @@ export const SimulationPage: React.FC = () => {
 
             {/* 7. SERVO SORTING FLAPS (Above Bins) */}
             <g id="sorting-flaps">
-              {/* Flap 1 - Wet Waste (Green) X: 520 */}
-              <line 
-                x1="520" y1="145" 
-                x2={currentStage >= 6 && selectedItem.category === 'Wet Waste' ? "505" : "520"} 
-                y2={currentStage >= 6 && selectedItem.category === 'Wet Waste' ? "175" : "130"} 
-                stroke="#10B981" strokeWidth="4" strokeLinecap="round" 
-              />
+              {SORTING_CATEGORIES.map((category) => {
+                const { flapX, color } = SORTING_TARGETS[category];
+                const isActiveFlap = currentStage >= 6 && selectedItem.category === category;
 
-              {/* Flap 2 - Plastic (Blue) X: 590 */}
-              <line 
-                x1="590" y1="145" 
-                x2={currentStage >= 6 && selectedItem.category === 'Plastic' ? "575" : "590"} 
-                y2={currentStage >= 6 && selectedItem.category === 'Plastic' ? "175" : "130"} 
-                stroke="#06B6D4" strokeWidth="4" strokeLinecap="round" 
-              />
-
-              {/* Flap 3 - Paper (Yellow) X: 660 */}
-              <line 
-                x1="660" y1="145" 
-                x2={currentStage >= 6 && selectedItem.category === 'Paper' ? "645" : "660"} 
-                y2={currentStage >= 6 && selectedItem.category === 'Paper' ? "175" : "130"} 
-                stroke="#EAB308" strokeWidth="4" strokeLinecap="round" 
-              />
-
-              {/* Flap 4 - Metal (Red) X: 730 */}
-              <line 
-                x1="730" y1="145" 
-                x2={currentStage >= 6 && selectedItem.category === 'Metal' ? "715" : "730"} 
-                y2={currentStage >= 6 && selectedItem.category === 'Metal' ? "175" : "130"} 
-                stroke="#EF4444" strokeWidth="4" strokeLinecap="round" 
-              />
+                return (
+                  <line
+                    key={category}
+                    x1={flapX}
+                    y1="145"
+                    x2={isActiveFlap ? flapX - 15 : flapX}
+                    y2={isActiveFlap ? "175" : "130"}
+                    stroke={color}
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                  />
+                );
+              })}
             </g>
 
             {/* 8. FOUR COLLECTION BINS (Y: 220-310) */}
@@ -594,8 +578,9 @@ export const SimulationPage: React.FC = () => {
             <g 
               id="moving-waste-item" 
               style={{
-                transition: `all ${1.2 / speedMultiplier}s cubic-bezier(0.25, 1, 0.5, 1)`,
-                transform: `translate(${getItemPositionX()}px, ${getItemPositionY()}px)`,
+                transition: `transform ${1.2 / speedMultiplier}s cubic-bezier(0.25, 1, 0.5, 1)`,
+                transform: `translate(${(getItemPositionX() / 860) * 100}%, ${(getItemPositionY() / 360) * 100}%)`,
+                transformBox: 'view-box',
               }}
             >
               {/* Outer bounding aura */}
